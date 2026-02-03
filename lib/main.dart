@@ -13,17 +13,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-List<Map<String, dynamic>> items = [
-  {
-    'item': 1,
-    'isActive': false
-  },
-  {
-    'item': 2,
-    'isActive': true
-  }
-];
-
 class CounterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -32,15 +21,23 @@ class CounterScreen extends StatelessWidget {
       body: Consumer<CounterModel>(
         builder: (context, counter, child) {
           return ListView.builder(
-            itemCount: items.length, // Added itemCount
+            itemCount: counter.items.length,
             itemBuilder: (BuildContext context, int index) {
+              final item = counter.items[index];
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Item #${items[index]['item']}'),
-                    Icon(Icons.favorite_border),
+                    Text('Item #${item['item']}'),
+                    // just wrap icon with GestureDetector and toggle
+                    GestureDetector(
+                      onTap: () => counter.toggleFavorite(index),
+                      child: Icon(
+                        item['isActive'] ? Icons.favorite : Icons.favorite_border,
+                        color: item['isActive'] ? Colors.red : null,
+                      ),
+                    ),
                   ],
                 ),
               );
@@ -52,26 +49,20 @@ class CounterScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
-              onPressed: () => increment(context),
-              child: Icon(Icons.add)
-          ),
+              onPressed: () => increment(context), child: Icon(Icons.add)),
           SizedBox(height: 10),
           FloatingActionButton(
-              onPressed: () => reset(context),
-              child: Icon(Icons.refresh)
-          ),
+              onPressed: () => reset(context), child: Icon(Icons.refresh)),
         ],
       ),
     );
   }
 
-  void increment(BuildContext context) { // Added type
-    final counter = Provider.of<CounterModel>(context, listen: false);
-    counter.increment();
+  void increment(BuildContext context) {
+    Provider.of<CounterModel>(context, listen: false).increment();
   }
 
-  void reset(BuildContext context) { // Added type
-    final counter = Provider.of<CounterModel>(context, listen: false);
-    counter.reset();
+  void reset(BuildContext context) {
+    Provider.of<CounterModel>(context, listen: false).reset();
   }
 }
